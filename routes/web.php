@@ -5,6 +5,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+// Ensure SellerOrderController is imported and exists
+use App\Http\Controllers\SellerOrderController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -26,19 +28,19 @@ Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.s
 /*CUSTOMER ROUTES*/
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     Route::get('/checkout', function () {
         return view('customer.checkout');
     })->name('checkout');
-    
+
     Route::post('/checkout/process', function () {
         // Logic checkout
     })->name('checkout.process');
-    
+
     Route::get('/transactions', function () {
         return view('customer.transactions');
     })->name('transactions');
-    
+
     Route::get('/transactions/{id}', function ($id) {
         return view('customer.transaction-detail', compact('id'));
     })->name('transactions.show');
@@ -46,102 +48,104 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 /*SELLER ROUTES*/
 Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->group(function () {
-    
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('seller.dashboard');
-    })->name('dashboard');
-    
+
+    // Dashboard (Manajemen Pesanan)
+    Route::get('/dashboard', [SellerOrderController::class, 'index'])->name('dashboard');
+
+    // Order Management
+    Route::controller(SellerOrderController::class)->group(function () {
+        Route::get('/orders', 'index')->name('orders.index');
+        Route::get('/orders/{id}', 'show')->name('orders.show');
+        Route::put('/orders/{id}/tracking', 'updateTracking')->name('orders.update-tracking');
+        Route::delete('/orders/{id}/tracking', 'removeTracking')->name('orders.remove-tracking');
+    });
+
     // Store Registration
     Route::get('/store/register', function () {
         return view('seller.store-register');
     })->name('store.register');
-    
+
     // Store Management
     Route::get('/store', function () {
         return view('seller.store.index');
     })->name('store.index');
-    
+
     Route::get('/store/edit', function () {
         return view('seller.store.edit');
     })->name('store.edit');
-    
+
     // Product Management
-    Route::get('/products', function () {
-        return view('seller.products.index');
-    })->name('products.index');
-    
-    Route::get('/products/create', function () {
-        return view('seller.products.create');
-    })->name('products.create');
-    
-    Route::get('/products/{id}/edit', function ($id) {
-        return view('seller.products.edit', compact('id'));
-    })->name('products.edit');
-    
+    Route::prefix('products')->name('products.')->group(function () {
+        Route::get('/', function () {
+            return view('seller.products.index');
+        })->name('index');
+
+        Route::get('/create', function () {
+            return view('seller.products.create');
+        })->name('create');
+
+        Route::get('/{id}/edit', function ($id) {
+            return view('seller.products.edit', compact('id'));
+        })->name('edit');
+    });
+
     // Category Management
     Route::get('/categories', function () {
         return view('seller.categories.index');
     })->name('categories.index');
-    
-    // Order Management
-    Route::get('/orders', function () {
-        return view('seller.orders.index');
-    })->name('orders.index');
-    
-    Route::get('/orders/{id}', function ($id) {
-        return view('seller.orders.show', compact('id'));
-    })->name('orders.show');
-    
+
     // Balance & Withdrawal
     Route::get('/balance', function () {
         return view('seller.balance');
     })->name('balance');
-    
-    Route::get('/withdrawal', function () {
-        return view('seller.withdrawal.index');
-    })->name('withdrawal.index');
-    
-    Route::post('/withdrawal/request', function () {
-        // Logic withdrawal
-    })->name('withdrawal.request');
+
+    Route::prefix('withdrawal')->name('withdrawal.')->group(function () {
+        Route::get('/', function () {
+            return view('seller.withdrawal.index');
+        })->name('index');
+
+        Route::post('/request', function () {
+            // Logic withdrawal
+        })->name('request');
+    });
 });
+
 
 /*ADMIN ROUTES*/
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
-    
+
     // Store Verification
     Route::get('/stores/verify', function () {
         return view('admin.stores.verify');
     })->name('stores.verify');
-    
+
     Route::post('/stores/{id}/approve', function ($id) {
         // Logic approve store
     })->name('stores.approve');
-    
+
     Route::post('/stores/{id}/reject', function ($id) {
         // Logic reject store
     })->name('stores.reject');
-    
+
     // User Management
     Route::get('/users', function () {
         return view('admin.users.index');
     })->name('users.index');
-    
+
     Route::get('/users/{id}', function ($id) {
         return view('admin.users.show', compact('id'));
     })->name('users.show');
-    
+
     // Store Management
     Route::get('/stores', function () {
         return view('admin.stores.index');
     })->name('stores.index');
-    
+
     Route::get('/stores/{id}', function ($id) {
         return view('admin.stores.show', compact('id'));
     })->name('stores.show');
