@@ -139,19 +139,20 @@
                             <div class="mt-6 flex gap-4">
                                 @auth
                                 @if($product->stock > 0)
-                                <button type="button"
-                                    class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    Tambah ke Keranjang
-                                </button>
+                                <form action="{{ route('cart.add', $product->id) }}" method="POST"
+                                    class="flex-1 flex gap-4" x-data="{ quantity: 1 }">
+                                    @csrf
+                                    <input type="hidden" name="quantity" x-model="quantity">
 
-                                <button type="button"
-                                    class="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition">
-                                    Beli Sekarang
-                                </button>
+                                    <button type="submit"
+                                        class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Tambah ke Keranjang
+                                    </button>
+                                </form>
                                 @else
                                 <button disabled
                                     class="flex-1 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed">
