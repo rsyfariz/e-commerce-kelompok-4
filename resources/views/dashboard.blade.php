@@ -5,12 +5,10 @@
 
     <body class="bg-gray-50">
 
-        <!-- ========== MAIN CONTENT ========== -->
         <main>
             <div class="container mx-auto px-4 py-8">
                 <div class="flex flex-col lg:flex-row gap-8">
 
-                    <!-- ========== SIDEBAR KATEGORI ========== -->
                     <aside class="w-full lg:w-64 flex-shrink-0">
                         <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
                             <h2 class="text-xl font-bold mb-4 text-gray-800">Kategori</h2>
@@ -43,7 +41,6 @@
                                 @endforeach
                             </ul>
 
-                            <!-- Filter Kondisi -->
                             <div class="mt-6 pt-6 border-t">
                                 <h3 class="font-semibold mb-3 text-gray-800">Kondisi</h3>
                                 <div class="space-y-2">
@@ -64,9 +61,7 @@
                         </div>
                     </aside>
 
-                    <!-- ========== PRODUK GRID ========== -->
                     <div class="flex-1 min-w-0">
-                        <!-- Header Info -->
                         <div class="mb-6">
                             <h1 class="text-2xl font-bold text-gray-800 mb-2">
                                 @if(request('category'))
@@ -84,46 +79,49 @@
                         </div>
 
                         @if($products->count() > 0)
-                        <!-- Grid Produk -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             @foreach($products as $product)
                             <div
                                 class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                <!-- Gambar Produk -->
-                                <div class="aspect-square bg-gray-100 relative overflow-hidden group">
-                                    @php
-                                    $thumbnail = $product->productImages->firstWhere('is_thumbnail', true);
-                                    if (!$thumbnail) {
-                                    $thumbnail = $product->productImages->first();
-                                    }
-                                    @endphp
+                                <!-- Wrapper Link untuk Card (kecuali button) -->
+                                <a href="{{ route('products.show', $product->id) }}" class="block">
+                                    <!-- Gambar Produk -->
+                                    <div class="aspect-square bg-gray-100 relative overflow-hidden group">
+                                        @php
+                                        $thumbnail = $product->productImages->firstWhere('is_thumbnail', true);
+                                        if (!$thumbnail) {
+                                        $thumbnail = $product->productImages->first();
+                                        }
+                                        @endphp
 
-                                    @if($thumbnail)
-                                    <img src="{{ asset('storage/' . $thumbnail->image) }}" alt="{{ $product->name }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                                    @else
-                                    <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                        <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
+                                        @if($thumbnail)
+                                        <img src="{{ asset('storage/' . $thumbnail->image) }}"
+                                            alt="{{ $product->name }}"
+                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                        @else
+                                        <div class="w-full h-full flex items-center justify-center text-gray-300">
+                                            <svg class="w-20 h-20" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        @endif
+
+                                        <!-- Badge Kondisi -->
+                                        <div class="absolute top-2 left-2">
+                                            <span
+                                                class="inline-block text-xs px-2 py-1 rounded-full font-semibold {{ $product->condition == 'new' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white' }}">
+                                                {{ $product->condition == 'new' ? 'Baru' : 'Bekas' }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Badge Stok -->
+                                        @if($product->stock < 10) <div
+                                            class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                                            Stok Terbatas
                                     </div>
                                     @endif
-
-                                    <!-- Badge Kondisi -->
-                                    <div class="absolute top-2 left-2">
-                                        <span
-                                            class="inline-block text-xs px-2 py-1 rounded-full font-semibold {{ $product->condition == 'new' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white' }}">
-                                            {{ $product->condition == 'new' ? 'Baru' : 'Bekas' }}
-                                        </span>
-                                    </div>
-
-                                    <!-- Badge Stok -->
-                                    @if($product->stock < 10) <div
-                                        class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
-                                        Stok Terbatas
-                                </div>
-                                @endif
                             </div>
 
                             <!-- Info Produk -->
@@ -160,9 +158,13 @@
                                         <span>Berat: {{ $product->weight }}kg</span>
                                     </div>
                                 </div>
+                            </div>
+                            </a>
 
-                                <button
-                                    class="mt-4 w-full bg-blue-500 text-white py-2.5 rounded-lg hover:bg-blue-600 transition-colors font-semibold flex items-center justify-center gap-2">
+                            <!-- Button Tambah ke Keranjang (Di Luar Link) -->
+                            <div class="px-4 pb-4">
+                                <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
+                                    class="w-full bg-blue-500 text-white py-2.5 rounded-lg hover:bg-blue-600 transition-colors font-semibold flex items-center justify-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -174,12 +176,10 @@
                         @endforeach
                     </div>
 
-                    <!-- Pagination -->
                     <div class="mt-8">
                         {{ $products->links() }}
                     </div>
                     @else
-                    <!-- Empty State -->
                     <div class="bg-white rounded-lg shadow-sm p-16 text-center">
                         <svg class="w-24 h-24 mx-auto text-gray-300" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -202,7 +202,6 @@
             </div>
         </main>
 
-        <!-- ========== FOOTER ========== -->
         <footer class="bg-gray-800 text-white mt-16 py-8">
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">

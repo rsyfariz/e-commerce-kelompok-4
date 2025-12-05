@@ -20,9 +20,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
-Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-
 /*CUSTOMER ROUTES*/
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -42,6 +39,8 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/transactions/{id}', function ($id) {
         return view('customer.transaction-detail', compact('id'));
     })->name('transactions.show');
+
+    Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 });
 
 /*SELLER ROUTES*/
