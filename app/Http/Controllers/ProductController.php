@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Support\Str;
+use Illuminate\Http\Response;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -26,5 +30,94 @@ class ProductController extends Controller
             ->get();
 
         return view('detailProduct', compact('product', 'relatedProducts'));
+    }
+
+    public function create()
+    {
+        $categories = ProductCategory::all();
+        return view('seller.products.create', compact('categories'));
+    }
+
+    /**
+     * Simpan produk baru.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'condition' => 'required|in:new,second',
+            'price' => 'required|numeric|min:0',
+            'weight' => 'required|integer|min:0',
+            'stock' => 'required|integer|min:0',
+            'product_category_id' => 'required|exists:product_categories,id',
+        ]);
+
+        $validated['store_id'] = auth()->user()->store->id;
+        $validated['slug'] = Str::slug($validated['name']) . '-' . uniqid();
+
+        Product::create($validated);
+
+        return redirect()->route('seller.products.index')
+            ->with('success', 'Produk berhasil ditambahkan');
+    }
+
+    /**
+     * Form edit produk.
+     */
+    public function edit(Product $product)
+    {
+        $this->authorizeProduct($product);
+
+        $categories = ProductCategory::all();
+        return view('seller.products.edit', compact('product', 'categories'));
+    }
+
+    /**
+     * Update produk.
+     */
+    public function update(Request $request, Product $product)
+    {
+        $this->authorizeProduct($product);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'condition' => 'required|in:new,second',
+            'price' => 'required|numeric|min:0',
+            'weight' => 'required|integer|min:0',
+            'stock' => 'required|integer|min:0',
+            'product_category_id' => 'required|exists:product_categories,id',
+        ]);
+
+        $validated['slug'] = Str::slug($validated['name']) . '-' . uniqid();
+
+        $product->update($validated);
+
+        return redirect()->route('seller.products.index')
+            ->with('success', 'Produk berhasil diupdate');
+    }
+
+    /**
+     * Hapus produk.
+     */
+    public function destroy(Product $product)
+    {
+        $this->authorizeProduct($product);
+
+        $product->delete();
+
+        return redirect()->route('seller.products.index')
+            ->with('success', 'Produk berhasil dihapus');
+    }
+
+    /**
+     * Helper untuk memastikan produk milik store seller.
+     */
+    private function authorizeProduct(Product $product)
+    {
+        if ($product->store_id !== auth()->user()->store->id) {
+            abort(403, 'Anda tidak berhak mengakses produk ini');
+        }
     }
 }

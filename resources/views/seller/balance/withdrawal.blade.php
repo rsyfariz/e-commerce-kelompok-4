@@ -76,7 +76,7 @@
                     @endphp
                     @foreach($quickAmounts as $quickAmount)
                     <button type="button"
-                        onclick="document.querySelector('input[name=amount]').value = {{ $quickAmount }}"
+                        onclick="document.querySelector('input[name=amount]').value = '{{ $quickAmount }}'"
                         class="px-4 py-2 bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 rounded-lg text-sm font-semibold transition">
                         {{ $quickAmount == $storeBalance->balance ? 'Semua' : 'Rp ' . number_format($quickAmount / 1000, 0) . 'K' }}
                     </button>

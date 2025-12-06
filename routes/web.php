@@ -5,10 +5,11 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
-// Ensure SellerOrderController is imported and exists
 use App\Http\Controllers\SellerOrderController;
-use App\Http\Controllers\CartController;
+use App\Http\Controllers\SellerProductController;
+use App\Http\Controllers\SellerStoreController;
 use App\Http\Controllers\SellerBalanceController;
+use App\Http\Controllers\CartController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -70,33 +71,24 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
         Route::delete('/orders/{id}/tracking', 'removeTracking')->name('orders.remove-tracking');
     });
 
-    // Store Registration
-    Route::get('/store/register', function () {
-        return view('seller.store-register');
-    })->name('store.register');
+    // Store Management - GUNAKAN CONTROLLER
+    Route::get('/store', [SellerStoreController::class, 'index'])->name('store.index');
+    Route::get('/store/edit', [SellerStoreController::class, 'edit'])->name('store.edit');
+    Route::put('/store', [SellerStoreController::class, 'update'])->name('store.update');
+    Route::delete('/store/logo', [SellerStoreController::class, 'deleteLogo'])->name('store.delete-logo');
 
-    // Store Management
-    Route::get('/store', function () {
-        return view('seller.store.index');
-    })->name('store.index');
+    /// Product Management - GUNAKAN CONTROLLER
+    Route::controller(SellerProductController::class)->prefix('products')->name('products.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
 
-    Route::get('/store/edit', function () {
-        return view('seller.store.edit');
-    })->name('store.edit');
-
-    // Product Management
-    Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', function () {
-            return view('seller.products.index');
-        })->name('index');
-
-        Route::get('/create', function () {
-            return view('seller.products.create');
-        })->name('create');
-
-        Route::get('/{id}/edit', function ($id) {
-            return view('seller.products.edit', compact('id'));
-        })->name('edit');
+        // Image management
+        Route::delete('/{productId}/images/{imageId}', 'deleteImage')->name('delete-image');
+        Route::post('/{productId}/images/{imageId}/thumbnail', 'setThumbnail')->name('set-thumbnail');
     });
 
     // Category Management
