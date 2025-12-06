@@ -9,7 +9,7 @@ class Transaction extends Model
 {
     protected $fillable = [
         'code',
-        'buyer_id',
+        'user_id',
         'store_id',
         'address',
         'address_id',
@@ -30,9 +30,9 @@ class Transaction extends Model
         'grand_total' => 'decimal:2',
     ];
 
-    public function buyer()
+    public function user()
     {
-        return $this->belongsTo(Buyer::class);
+        return $this->belongsTo(User::class);
     }
     public function store()
     {

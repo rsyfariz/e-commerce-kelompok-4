@@ -9,16 +9,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            // Drop foreign key constraint dulu
+            // 1. Drop foreign key constraint
             $table->dropForeign(['buyer_id']);
             
-            // Rename column
+            // 2. Rename column
             $table->renameColumn('buyer_id', 'user_id');
         });
 
-        // Tambah foreign key baru
+        // 3. Add new foreign key
         Schema::table('transactions', function (Blueprint $table) {
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('user_id')
+                  ->references('id')
+                  ->on('users')
+                  ->cascadeOnDelete();
         });
     }
 
@@ -30,7 +33,10 @@ return new class extends Migration
         });
 
         Schema::table('transactions', function (Blueprint $table) {
-            $table->foreign('buyer_id')->references('id')->on('buyers')->cascadeOnDelete();
+            $table->foreign('buyer_id')
+                  ->references('id')
+                  ->on('buyers')
+                  ->cascadeOnDelete();
         });
     }
 };

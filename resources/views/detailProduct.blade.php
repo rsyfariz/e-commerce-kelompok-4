@@ -166,6 +166,10 @@
                                 </a>
                                 @endauth
                             </div>
+                            <a href="{{ route('checkout') }}"
+                                class="block w-full text-center mt-3 text-gray-600 hover:text-gray-900">
+                                Lanjut ke Checkout
+                            </a>
                         </div>
                     </div>
                 </div>

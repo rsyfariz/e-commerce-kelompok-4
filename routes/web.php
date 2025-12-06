@@ -10,6 +10,7 @@ use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerStoreController;
 use App\Http\Controllers\SellerBalanceController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -43,9 +44,26 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::delete('/cart/remove/{cartItem}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 
+    // Checkout routes
     Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [App\Http\Controllers\CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/success/{transaction}', [App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
+
+    // Transactions routes
+    Route::get('/transactions', function () {
+        $transactions = \App\Models\Transaction::where('user_id', Auth::id())
+            ->with(['transactionDetails', 'store'])
+            ->latest()
+            ->paginate(10);
+        return view('customer.transactions', compact('transactions'));
+    })->name('transactions.history');
+
+    Route::get('/transactions/{id}', function ($id) {
+        $transaction = \App\Models\Transaction::with('transactionDetails.product')
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
+        return view('customer.transaction-detail', compact('transaction'));
+    })->name('transactions.show');
 });
 
 /*SELLER ROUTES*/

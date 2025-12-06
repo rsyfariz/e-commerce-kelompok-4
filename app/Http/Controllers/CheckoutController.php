@@ -92,7 +92,7 @@ class CheckoutController extends Controller
                 // Create transaction for each store
                 $transaction = Transaction::create([
                     'code' => 'TRX-' . strtoupper(Str::random(10)),
-                    'buyer_id' => Auth::id(),
+                    'user_id' => Auth::id(),
                     'store_id' => $storeId,
                     'address' => $fullAddress,
                     'address_id' => 'ADDR-' . strtoupper(Str::random(8)), // Generate address_id
@@ -142,9 +142,9 @@ class CheckoutController extends Controller
     public function success($transactionId)
     {
         $transaction = Transaction::with(['transactionDetails.product', 'store'])
-            ->where('buyer_id', Auth::id())
+            ->where('user_id', Auth::id())
             ->findOrFail($transactionId);
             
-        return view('checkout-success', compact('transaction'));
+        return view('CheckoutSuccess', compact('transaction'));
     }
 }
