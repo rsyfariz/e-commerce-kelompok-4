@@ -2,12 +2,12 @@
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between flex-wrap gap-4">
-            <a href="{{ route('home') }}" class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition">
-                🛒 Marketplace
+            <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition">
+                ⚡ElectroMart
             </a>
 
             <!-- Search Bar -->
-            <form action="{{ route('home') }}" method="GET" class="flex-1 max-w-md">
+            <form action="{{ route('dashboard') }}" method="GET" class="flex-1 max-w-md">
                 <div class="relative">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..."
                         class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -20,6 +20,11 @@
             </form>
 
             <div class="flex items-center gap-4">
+
+                <button
+                    class="inline-flex items-center px-3 py-2 text-sm rounded-md text-gray-600 bg-white hover:text-gray-800 transition">
+                    <a href="{{ route('cart') }}" class="hover:text-blue-600">Keranjang</a>
+                </button>
 
                 @auth
                 <!-- Dropdown untuk user yang sudah login -->

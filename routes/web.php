@@ -25,14 +25,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/checkout', function () {
-        return view('customer.checkout');
-    })->name('checkout');
-
-    Route::post('/checkout/process', function () {
-        // Logic checkout
-    })->name('checkout.process');
-
     Route::get('/transactions', function () {
         return view('customer.transactions');
     })->name('transactions');
@@ -49,7 +41,9 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::delete('/cart/remove/{cartItem}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 
-
+    Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/process', [App\Http\Controllers\CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/success/{transaction}', [App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
 });
 
 /*SELLER ROUTES*/

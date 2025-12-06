@@ -172,7 +172,7 @@
                 <p class="mt-3 text-gray-600">
                     Belum ada produk dalam keranjang Anda
                 </p>
-                <a href="{{ route('home') }}"
+                <a href="{{ route('dashboard') }}"
                     class="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
                     Mulai Belanja
                 </a>
