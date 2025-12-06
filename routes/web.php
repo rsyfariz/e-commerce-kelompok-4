@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 // Ensure SellerOrderController is imported and exists
 use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\SellerBalanceController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -42,14 +43,12 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     })->name('transactions.show');
 
     Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
-    
+
     Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{product}', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/update/{cartItem}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{cartItem}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
-
-
 });
 
 /*SELLER ROUTES*/
@@ -57,6 +56,11 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
 
     // Dashboard (Manajemen Pesanan)
     Route::get('/dashboard', [SellerOrderController::class, 'index'])->name('dashboard');
+
+    // Di dalam seller routes group
+    Route::get('/balance', [SellerBalanceController::class, 'index'])->name('balance.index');
+    Route::get('/balance/withdrawal', [SellerBalanceController::class, 'withdrawalForm'])->name('balance.withdrawal');
+    Route::post('/balance/withdrawal', [SellerBalanceController::class, 'processWithdrawal'])->name('balance.withdrawal.process');
 
     // Order Management
     Route::controller(SellerOrderController::class)->group(function () {
@@ -99,21 +103,6 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/categories', function () {
         return view('seller.categories.index');
     })->name('categories.index');
-
-    // Balance & Withdrawal
-    Route::get('/balance', function () {
-        return view('seller.balance');
-    })->name('balance');
-
-    Route::prefix('withdrawal')->name('withdrawal.')->group(function () {
-        Route::get('/', function () {
-            return view('seller.withdrawal.index');
-        })->name('index');
-
-        Route::post('/request', function () {
-            // Logic withdrawal
-        })->name('request');
-    });
 });
 
 
