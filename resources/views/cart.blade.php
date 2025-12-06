@@ -154,7 +154,7 @@
                             Lanjut ke Checkout
                         </a>
 
-                        <a href="{{ route('home') }}"
+                        <a href="{{ route('dashboard') }}"
                             class="block w-full text-center mt-3 text-gray-600 hover:text-gray-900">
                             Lanjut Belanja
                         </a>
