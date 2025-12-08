@@ -139,6 +139,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{id}/reject', [StoreVerificationController::class, 'reject'])->name('reject');
         Route::post('/{id}/reset', [StoreVerificationController::class, 'reset'])->name('reset');
     });
+
+    // User Management Routes
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('index');
+        Route::get('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('destroy');
+    });
+    
+    // Store Management Routes
+    Route::prefix('management/stores')->name('stores.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\StoreManagementController::class, 'index'])->name('index');
+        Route::get('/{id}', [App\Http\Controllers\Admin\StoreManagementController::class, 'show'])->name('show');
+        Route::post('/{id}/suspend', [App\Http\Controllers\Admin\StoreManagementController::class, 'suspend'])->name('suspend');
+        Route::post('/{id}/activate', [App\Http\Controllers\Admin\StoreManagementController::class, 'activate'])->name('activate');
+        Route::delete('/{id}', [App\Http\Controllers\Admin\StoreManagementController::class, 'destroy'])->name('destroy');
+    });
 });
 
 /*PROFILE ROUTES*/
