@@ -3,12 +3,14 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerStoreController;
 use App\Http\Controllers\SellerBalanceController;
+use App\Http\Controllers\Admin\StoreVerificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 
@@ -37,7 +39,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     })->name('transactions.show');
 
     Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
-    
+
     Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart');
     Route::post('/cart/add/{product}', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/update/{cartItem}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
@@ -69,8 +71,8 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
             'transactionDetails.product.productImages',
             'store'
         ])
-        ->where('user_id', Auth::id())
-        ->findOrFail($id);
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
 
         return view('TransactionDetail', compact('transaction'));
     })->name('transactions.show');
@@ -123,43 +125,20 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
 
 
 /*ADMIN ROUTES*/
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
-    // Dashboard
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
-    // Store Verification
-    Route::get('/stores/verify', function () {
-        return view('admin.stores.verify');
-    })->name('stores.verify');
-
-    Route::post('/stores/{id}/approve', function ($id) {
-        // Logic approve store
-    })->name('stores.approve');
-
-    Route::post('/stores/{id}/reject', function ($id) {
-        // Logic reject store
-    })->name('stores.reject');
-
-    // User Management
-    Route::get('/users', function () {
-        return view('admin.users.index');
-    })->name('users.index');
-
-    Route::get('/users/{id}', function ($id) {
-        return view('admin.users.show', compact('id'));
-    })->name('users.show');
-
-    // Store Management
-    Route::get('/stores', function () {
-        return view('admin.stores.index');
-    })->name('stores.index');
-
-    Route::get('/stores/{id}', function ($id) {
-        return view('admin.stores.show', compact('id'));
-    })->name('stores.show');
+    // Store Verification Routes
+    Route::prefix('stores')->name('stores.')->group(function () {
+        Route::get('/verify', [StoreVerificationController::class, 'index'])->name('verify');
+        Route::get('/{id}', [StoreVerificationController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [StoreVerificationController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [StoreVerificationController::class, 'reject'])->name('reject');
+        Route::post('/{id}/reset', [StoreVerificationController::class, 'reset'])->name('reset');
+    });
 });
 
 /*PROFILE ROUTES*/
