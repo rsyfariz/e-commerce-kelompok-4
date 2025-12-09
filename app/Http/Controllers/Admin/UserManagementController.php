@@ -46,7 +46,7 @@ class UserManagementController extends Controller
         
         // Get transactions if user is customer
         if ($user->role === 'customer') {
-            $transactions = \App\Models\Transaction::where('buyer_id', $user->id)
+            $transactions = \App\Models\Transaction::where('user_id', $user->id)
                 ->with('store')
                 ->latest()
                 ->take(10)
