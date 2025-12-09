@@ -1,33 +1,38 @@
 <x-app-layout>
-
     <!DOCTYPE html>
     <html lang="id">
 
     <body class="bg-gray-50">
-
         <main>
             <div class="container mx-auto px-4 py-8">
                 <div class="flex flex-col lg:flex-row gap-8">
 
+                    <!-- ========== SIDEBAR FILTER ========== -->
                     <aside class="w-full lg:w-64 flex-shrink-0">
                         <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+
+                            <!-- KATEGORI -->
                             <h2 class="text-xl font-bold mb-4 text-gray-800">Kategori</h2>
                             <ul class="space-y-1">
+                                <!-- Semua Produk -->
                                 <li>
-                                    <a href="{{ route('home') }}"
-                                        class="block py-2.5 px-4 rounded-lg transition {{ !request('category') ? 'bg-blue-500 text-white font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
+                                    <a href="{{ route('dashboard', request()->only(['search'])) }}"
+                                        class="block py-2.5 px-4 rounded-lg transition {{ !request('category') && !request('condition') ? 'bg-blue-500 text-white font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
                                         <div class="flex items-center justify-between">
                                             <span>Semua Produk</span>
-                                            <span
-                                                class="text-sm {{ !request('category') ? 'text-blue-100' : 'text-gray-500' }}">
+                                            @if(!request('category') && !request('condition'))
+                                            <span class="text-sm text-blue-100">
                                                 ({{ $products->total() }})
                                             </span>
+                                            @endif
                                         </div>
                                     </a>
                                 </li>
+
+                                <!-- Loop Kategori -->
                                 @foreach($categories as $category)
                                 <li>
-                                    <a href="{{ route('home', ['category' => $category->id]) }}"
+                                    <a href="{{ route('dashboard', array_merge(['category' => $category->id], request()->only(['search', 'condition']))) }}"
                                         class="block py-2.5 px-4 rounded-lg transition {{ request('category') == $category->id ? 'bg-blue-500 text-white font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
                                         <div class="flex items-center justify-between">
                                             <span>{{ $category->name }}</span>
@@ -41,27 +46,45 @@
                                 @endforeach
                             </ul>
 
+                            <!-- FILTER KONDISI -->
                             <div class="mt-6 pt-6 border-t">
                                 <h3 class="font-semibold mb-3 text-gray-800">Kondisi</h3>
                                 <div class="space-y-2">
-                                    <a href="{{ route('home', array_merge(request()->except('condition'), [])) }}"
+                                    <!-- Semua Kondisi -->
+                                    <a href="{{ route('dashboard', request()->except('condition')) }}"
                                         class="block py-2 px-4 rounded-lg transition {{ !request('condition') ? 'bg-gray-200 font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
                                         Semua
                                     </a>
-                                    <a href="{{ route('home', array_merge(request()->except('condition'), ['condition' => 'new'])) }}"
+
+                                    <!-- Baru -->
+                                    <a href="{{ route('dashboard', array_merge(request()->except('condition'), ['condition' => 'new'])) }}"
                                         class="block py-2 px-4 rounded-lg transition {{ request('condition') == 'new' ? 'bg-gray-200 font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
                                         Baru
                                     </a>
-                                    <a href="{{ route('home', array_merge(request()->except('condition'), ['condition' => 'used'])) }}"
+
+                                    <!-- Bekas -->
+                                    <a href="{{ route('dashboard', array_merge(request()->except('condition'), ['condition' => 'used'])) }}"
                                         class="block py-2 px-4 rounded-lg transition {{ request('condition') == 'used' ? 'bg-gray-200 font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
                                         Bekas
                                     </a>
                                 </div>
                             </div>
+
+                            <!-- RESET FILTER -->
+                            @if(request()->hasAny(['category', 'condition']))
+                            <div class="mt-6 pt-6 border-t">
+                                <a href="{{ route('dashboard', request()->only('search')) }}"
+                                    class="block w-full text-center py-2 text-sm text-red-600 hover:text-red-700 font-semibold border border-red-300 rounded-lg hover:bg-red-50 transition">
+                                    Reset Filter
+                                </a>
+                            </div>
+                            @endif
                         </div>
                     </aside>
 
+                    <!-- ========== MAIN CONTENT ========== -->
                     <div class="flex-1 min-w-0">
+                        <!-- Header -->
                         <div class="mb-6">
                             <h1 class="text-2xl font-bold text-gray-800 mb-2">
                                 @if(request('category'))
@@ -69,23 +92,60 @@
                                 @else
                                 Semua Produk
                                 @endif
+
+                                @if(request('condition'))
+                                - {{ request('condition') == 'new' ? 'Baru' : 'Bekas' }}
+                                @endif
                             </h1>
+
                             <p class="text-gray-600">
                                 Menampilkan {{ $products->count() }} dari {{ $products->total() }} produk
                                 @if(request('search'))
-                                untuk "{{ request('search') }}"
+                                untuk pencarian "<strong>{{ request('search') }}</strong>"
                                 @endif
                             </p>
+
+                            <!-- Active Filters Tags -->
+                            @if(request()->hasAny(['category', 'condition']))
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="text-sm text-gray-600 font-medium">Filter aktif:</span>
+
+                                @if(request('category'))
+                                @php $currentCategory = $categories->firstWhere('id', request('category')); @endphp
+                                @if($currentCategory)
+                                <a href="{{ route('dashboard', request()->except('category')) }}"
+                                    class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200 transition">
+                                    {{ $currentCategory->name }}
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </a>
+                                @endif
+                                @endif
+
+                                @if(request('condition'))
+                                <a href="{{ route('dashboard', request()->except('condition')) }}"
+                                    class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium hover:bg-green-200 transition">
+                                    {{ request('condition') == 'new' ? 'Baru' : 'Bekas' }}
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </a>
+                                @endif
+                            </div>
+                            @endif
                         </div>
 
+                        <!-- Products Grid -->
                         @if($products->count() > 0)
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             @foreach($products as $product)
                             <div
                                 class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                <!-- Wrapper Link untuk Card (kecuali button) -->
                                 <a href="{{ route('products.show', $product->id) }}" class="block">
-                                    <!-- Gambar Produk -->
+                                    <!-- Product Image -->
                                     <div class="aspect-square bg-gray-100 relative overflow-hidden group">
                                         @php
                                         $thumbnail = $product->productImages->firstWhere('is_thumbnail', true);
@@ -108,7 +168,7 @@
                                         </div>
                                         @endif
 
-                                        <!-- Badge Kondisi -->
+                                        <!-- Badges -->
                                         <div class="absolute top-2 left-2">
                                             <span
                                                 class="inline-block text-xs px-2 py-1 rounded-full font-semibold {{ $product->condition == 'new' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white' }}">
@@ -116,7 +176,6 @@
                                             </span>
                                         </div>
 
-                                        <!-- Badge Stok -->
                                         @if($product->stock < 10) <div
                                             class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
                                             Stok Terbatas
@@ -124,7 +183,7 @@
                                     @endif
                             </div>
 
-                            <!-- Info Produk -->
+                            <!-- Product Info -->
                             <div class="p-4">
                                 <div class="flex items-center justify-between mb-2">
                                     <span
@@ -161,8 +220,7 @@
                             </div>
                             </a>
 
-                            <!-- Button Tambah ke Keranjang (Di Luar Link) -->
-                            <!-- Button Tambah ke Keranjang (Di Luar Link) -->
+                            <!-- Add to Cart Button -->
                             <div class="px-4 pb-4">
                                 @auth
                                 <form action="{{ route('cart.add', $product->id) }}" method="POST">
@@ -184,15 +242,16 @@
                                 </a>
                                 @endauth
                             </div>
-
                         </div>
                         @endforeach
                     </div>
 
+                    <!-- Pagination -->
                     <div class="mt-8">
                         {{ $products->links() }}
                     </div>
                     @else
+                    <!-- Empty State -->
                     <div class="bg-white rounded-lg shadow-sm p-16 text-center">
                         <svg class="w-24 h-24 mx-auto text-gray-300" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -201,13 +260,20 @@
                         </svg>
                         <h3 class="mt-6 text-2xl font-bold text-gray-800">Produk tidak ditemukan</h3>
                         <p class="mt-3 text-gray-600 max-w-md mx-auto">
-                            Maaf, kami tidak menemukan produk yang Anda cari. Coba gunakan kata kunci lain atau pilih
-                            kategori berbeda.
+                            Maaf, kami tidak menemukan produk yang sesuai dengan filter Anda. Silakan coba filter lain.
                         </p>
-                        <a href="{{ route('home') }}"
-                            class="inline-block mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold">
-                            Lihat Semua Produk
-                        </a>
+                        <div class="flex gap-3 justify-center mt-6">
+                            <a href="{{ route('dashboard') }}"
+                                class="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold">
+                                Lihat Semua Produk
+                            </a>
+                            @if(request()->hasAny(['category', 'condition']))
+                            <a href="{{ route('dashboard', request()->only('search')) }}"
+                                class="inline-block px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold">
+                                Reset Filter
+                            </a>
+                            @endif
+                        </div>
                     </div>
                     @endif
                 </div>
@@ -215,37 +281,46 @@
             </div>
         </main>
 
+        <!-- ========== FOOTER ========== -->
         <footer class="bg-gray-800 text-white mt-16 py-8">
             <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                     <div>
                         <h3 class="text-lg font-semibold mb-4">Tentang Kami</h3>
-                        <p class="text-gray-400">Marketplace terpercaya dengan berbagai pilihan produk dari toko
+                        <p class="text-gray-400">Electromart terpercaya dengan berbagai pilihan produk dari toko
                             terpercaya.</p>
                     </div>
                     <div>
-                        <h3 class="text-lg font-semibold mb-4">Layanan</h3>
+                        <h3 class="text-lg font-semibold mb-4">Untuk Pembeli</h3>
                         <ul class="space-y-2 text-gray-400">
-                            <li><a href="#" class="hover:text-white transition">Cara Berbelanja</a></li>
+                            <li><a href="/" class="hover:text-white transition">Cara Berbelanja</a></li>
                             <li><a href="#" class="hover:text-white transition">Kebijakan Pengembalian</a></li>
                             <li><a href="#" class="hover:text-white transition">FAQ</a></li>
                         </ul>
                     </div>
                     <div>
+                        <h3 class="text-lg font-semibold mb-4">Untuk Penjual</h3>
+                        <ul class="space-y-2 text-gray-400">
+                            <li><a href="{{ route('seller.register') }}" class="hover:text-white transition">Daftar
+                                    Sebagai Penjual</a></li>
+                            <li><a href="#" class="hover:text-white transition">Panduan Penjual</a></li>
+                            <li><a href="#" class="hover:text-white transition">Pusat Edukasi</a></li>
+                        </ul>
+                    </div>
+                    <div>
                         <h3 class="text-lg font-semibold mb-4">Hubungi Kami</h3>
                         <ul class="space-y-2 text-gray-400">
-                            <li>Email: info@marketplace.com</li>
+                            <li>Email: info@electromart.com</li>
                             <li>Telp: (021) 1234-5678</li>
-                            <li>WA: 0812-3456-7890</li>
+                            <li>WA: 0822-4558-0089</li>
                         </ul>
                     </div>
                 </div>
                 <div class="border-t border-gray-700 pt-6 text-center text-gray-400">
-                    <p>&copy; {{ date('Y') }} Marketplace. All rights reserved.</p>
+                    <p>&copy; {{ date('Y') }} Electromart. All rights reserved.</p>
                 </div>
             </div>
         </footer>
-
     </body>
 
     </html>
