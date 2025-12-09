@@ -78,13 +78,24 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     })->name('transactions.show');
 });
 
-/*SELLER ROUTES*/
+/*SELLER ROUTES - WAITING & REJECTED (Tanpa Verifikasi)*/
 Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/waiting-verification', function () {
+        return view('seller.waiting-verification');
+    })->name('waiting');
+
+    Route::get('/store-rejected', function () {
+        return view('seller.store-rejected');
+    })->name('rejected');
+});
+
+/*SELLER ROUTES - DASHBOARD & FEATURES (Dengan Verifikasi)*/
+Route::middleware(['auth', 'role:seller', 'seller.verified'])->prefix('seller')->name('seller.')->group(function () {
 
     // Dashboard (Manajemen Pesanan)
     Route::get('/dashboard', [SellerOrderController::class, 'index'])->name('dashboard');
 
-    // Di dalam seller routes group
+    // Balance Management
     Route::get('/balance', [SellerBalanceController::class, 'index'])->name('balance.index');
     Route::get('/balance/withdrawal', [SellerBalanceController::class, 'withdrawalForm'])->name('balance.withdrawal');
     Route::post('/balance/withdrawal', [SellerBalanceController::class, 'processWithdrawal'])->name('balance.withdrawal.process');
@@ -97,13 +108,13 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
         Route::delete('/orders/{id}/tracking', 'removeTracking')->name('orders.remove-tracking');
     });
 
-    // Store Management - GUNAKAN CONTROLLER
+    // Store Management
     Route::get('/store', [SellerStoreController::class, 'index'])->name('store.index');
     Route::get('/store/edit', [SellerStoreController::class, 'edit'])->name('store.edit');
     Route::put('/store', [SellerStoreController::class, 'update'])->name('store.update');
     Route::delete('/store/logo', [SellerStoreController::class, 'deleteLogo'])->name('store.delete-logo');
 
-    /// Product Management - GUNAKAN CONTROLLER
+    // Product Management
     Route::controller(SellerProductController::class)->prefix('products')->name('products.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
@@ -122,7 +133,6 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
         return view('seller.categories.index');
     })->name('categories.index');
 });
-
 
 /*ADMIN ROUTES*/
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -148,7 +158,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('update');
         Route::delete('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('destroy');
     });
-    
+
     // Store Management Routes
     Route::prefix('management/stores')->name('stores.')->group(function () {
         Route::get('/', [App\Http\Controllers\Admin\StoreManagementController::class, 'index'])->name('index');
