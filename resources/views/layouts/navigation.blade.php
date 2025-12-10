@@ -2,8 +2,18 @@
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between flex-wrap gap-4">
-            <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition">
-                ⚡ElectroMart
+            <a href="{{ route('home') }}" class="flex items-center gap-3 hover:opacity-80 transition flex-shrink-0">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <span
+                    class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hidden sm:block">
+                    Electromart
+                </span>
             </a>
 
             <!-- Search Bar -->

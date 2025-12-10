@@ -4,12 +4,7 @@
             <!-- Breadcrumb -->
             <nav class="mb-6">
                 <ol class="flex items-center space-x-2 text-sm text-gray-600">
-                    <li><a href="{{ route('home') }}" class="hover:text-blue-600">Home</a></li>
-                    <li><span class="mx-2">/</span></li>
-                    <li><a href="{{ route('home', ['category' => $product->product_category_id]) }}"
-                            class="hover:text-blue-600">
-                            {{ $product->productCategory->name }}
-                        </a></li>
+                    <li><a href="{{ route('dashboard') }}" class="hover:text-blue-600">Dashboard</a></li>
                     <li><span class="mx-2">/</span></li>
                     <li class="text-gray-900 font-semibold">{{ $product->name }}</li>
                 </ol>
